@@ -1,0 +1,8 @@
+# Ignore virtual environment
+.venv/
+/db
+token.pickle
+service_account_pe.json
+service_account_sw.json
+credentials_pe.json
+credentials_sw.json
