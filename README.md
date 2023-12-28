@@ -29,7 +29,7 @@ Web Scraper is a desktop application designed for scraping and analyzing web con
 
 ## Google Cloud Project:
 - Create a new project on [Google Cloud Console](https://console.cloud.google.com/).
-- Enable the Google Sheets API for your project.
+- Enable the Google Sheets and Google Drive APIs for your project.
 
 ## OAuth Credentials:
 - In the Google Cloud Console, navigate to "APIs & Services" > "Credentials".
