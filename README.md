@@ -14,15 +14,15 @@ Web Scraper is a desktop application designed for scraping and analyzing web con
 
 ### Installation
 1. **Clone the Repository**:  
-   ```bash
+   ```shell
    git clone https://github.com/crmchattie/web-scraper.git
 
 2. **Navigate to the Project Directory**:  
-   ```bash
+   ```shell
    cd web-scraper
 
 3. **Install Dependencies**:  
-   ```bash
+   ```shell
    pip install -r requirements.txt
 
 # Google Cloud and OAuth Setup
@@ -37,23 +37,48 @@ Web Scraper is a desktop application designed for scraping and analyzing web con
 - Place `credentials.json` in your project's root directory.
 
 # Ollama and Mistral AI Model
-- Follow the installation guide for Ollama and the Mistral model available [here](https://www.markhneedham.com/blog/2023/10/03/mistral-ai-own-machine-ollama/).
+- See next step or follow the installation guide for Ollama and the Mistral model available [here](https://www.markhneedham.com/blog/2023/10/03/mistral-ai-own-machine-ollama/).
+
+## Download the tool Ollama
+- Download is available [here](https://www.markhneedham.com/blog/2023/10/03/mistral-ai-own-machine-ollama/#:~:text=a%20tool%20called-,Ollama,-.%20We%E2%80%99ll%20choose%20the).
+
+## Download the LLM from Ollama
+- Execute the command:
+  ```shell
+  ollama run mistral:latest
 
 # Running the Application
+
+## Navigate to local repository
+- Navigate to wherever you saved the local repository:
+  ```shell
+  cd web-scraper
+
 ## Activate Virtual Environment
-- Activate your virtual environment before running the application:
+- Activate your virtual environment:
   ```shell
   .venv/bin/activate
+
 ## First time:
 - Run Flask on localhost in order to authenticate with the Google Console.
-- After successfully authenticating, you can skip this step.
-- Note, this is run on port 5001 because libretaranslation will be run on port 5000
   ```shell
   flask run --port=5001
-## Set-up libretranslation:
-- In a separate terminal window, run libretranslation on localhost:5000
+- After successfully authenticating, you can skip this step.
+- Note, this is run on port 5001 because libretaranslation will be run on port 5000
+
+## Set-up libretranslate:
+- In a separate terminal window, repeat steps 1 and 2 above and then run libretranslate on localhost:5000
   ```shell
   libretranslate
-## Execute the Script:
+-  Note you should have two terminal windows open now
+
+## Set-up LLM:
+- In another separate terminal window, run ollama run mistral
+  ```shell
+  ollama run mistral
+- Note you should have three terminal windows open now
+
+## Run the Script:
+- Execute the following command in the terminal window you first created
   ```shell
   python app.py
