@@ -18,6 +18,7 @@ def analyze_website_content(domain, title, meta_description, headings, navigatio
 
         # Get the response from MistralAI
         response = llm.complete(prompt)
+        print("response", response)
         return response
     except Exception as e:
         print(f"An error occurred in analyze_website_content: {e}")
@@ -34,7 +35,9 @@ def categorize_website_sector(summary):
 
         # Get the response from MistralAI
         response = llm.complete(prompt)
-        response_str = str(response)
+        print("response", response)
+        # Convert the response to a string (assuming the response text is in the 'text' attribute)
+        response_str = response.text if hasattr(response, 'text') else str(response)
 
         # Find the first matching sector in the response
         for sector in sector_to_sector:
@@ -65,7 +68,10 @@ def categorize_website_subsector(summary, sector):
 
         # Get the response from MistralAI
         response = llm.complete(prompt)
-        response_str = str(response)
+        print("response", response)
+        # Convert the response to a string (assuming the response text is in the 'text' attribute)
+        response_str = response.text if hasattr(response, 'text') else str(response)
+
 
         # Find the first matching subcategory in the response
         for subcategory in sector_to_subsector[sector]:
@@ -95,7 +101,10 @@ def categorize_website_industry(summary, subsector):
 
         # Get the response from MistralAI
         response = llm.complete(prompt)
-        response_str = str(response)
+        print("response", response)
+        # Convert the response to a string (assuming the response text is in the 'text' attribute)
+        response_str = response.text if hasattr(response, 'text') else str(response)
+
 
         # Find the first matching industry in the response
         for industry in subsector_to_industry[subsector]:
@@ -125,7 +134,10 @@ def categorize_website_subindustry(summary, industry):
 
         # Get the response from MistralAI
         response = llm.complete(prompt)
-        response_str = str(response)
+        print("response", response)
+        # Convert the response to a string (assuming the response text is in the 'text' attribute)
+        response_str = response.text if hasattr(response, 'text') else str(response)
+
 
         # Find the first matching subindustry in the response
         for subindustry in industry_to_subindustry[industry]:
@@ -149,7 +161,10 @@ def categorize_website_sector_w_new_categories(summary):
                 f"If none of these fit, please suggest a new appropriate sector. Limit your response to just the sector.")
 
         response = llm.complete(prompt)
-        response_str = str(response)
+        print("response", response)
+        # Convert the response to a string (assuming the response text is in the 'text' attribute)
+        response_str = response.text if hasattr(response, 'text') else str(response)
+
 
         for sector in sector_to_sector:
             if sector.lower() in response_str.lower():
@@ -181,7 +196,11 @@ def categorize_website_subsector_w_new_categories(summary, sector):
                   f"The available subsectors in '{sector}' are: {', '.join(sector_to_subsector[sector])}. "
                   f"If none of these fit, please suggest a new appropriate subsector. Limit your response to just the subsector.")
         response = llm.complete(prompt)
-        response_str = str(response)
+        print("response", response)
+        print("response", response)
+        # Convert the response to a string (assuming the response text is in the 'text' attribute)
+        response_str = response.text if hasattr(response, 'text') else str(response)
+
 
         for subcategory in sector_to_subsector[sector]:
             if subcategory.lower() in response_str.lower():
@@ -206,6 +225,7 @@ def categorize_website_industry_w_new_categories(summary, subsector):
                       f"please suggest an appropriate industry for this website. "
                       "Limit your response to just the industry name.")
             response = llm.complete(prompt)
+            print("response", response)
             return str(response)
 
         # When industries are available
@@ -214,7 +234,10 @@ def categorize_website_industry_w_new_categories(summary, subsector):
                   f"The available industries in '{subsector}' are: {', '.join(subsector_to_industry[subsector])}. "
                   f"If none of these fit, please suggest a new appropriate industry. Limit your response to just the industry.")
         response = llm.complete(prompt)
-        response_str = str(response)
+        print("response", response)
+        # Convert the response to a string (assuming the response text is in the 'text' attribute)
+        response_str = response.text if hasattr(response, 'text') else str(response)
+
 
         for industry in subsector_to_industry[subsector]:
             if industry.lower() in response_str.lower():
@@ -238,6 +261,7 @@ def categorize_website_subindustry_w_new_categories(summary, industry):
                       f"please suggest an appropriate subindustry for this website. "
                       "Limit your response to just the subindustry name.")
             response = llm.complete(prompt)
+            print("response", response)
             return str(response)
 
         # When subindustries are available
@@ -246,7 +270,10 @@ def categorize_website_subindustry_w_new_categories(summary, industry):
                   f"The available subindustries in '{industry}' are: {', '.join(industry_to_subindustry[industry])}. "
                   f"If none of these fit, please suggest a new appropriate subindustry. Limit your response to just the subindustry.")
         response = llm.complete(prompt)
-        response_str = str(response)
+        print("response", response)
+        # Convert the response to a string (assuming the response text is in the 'text' attribute)
+        response_str = response.text if hasattr(response, 'text') else str(response)
+
 
         for subindustry in industry_to_subindustry[industry]:
             if subindustry.lower() in response_str.lower():

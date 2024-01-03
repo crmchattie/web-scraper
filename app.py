@@ -19,6 +19,9 @@ DOMAIN_RANGE = f'{SPREADSHEET_NAME}!A2:A100'
 def run_script():
     try:
         driver = setup_headless_selenium_driver()
+        if driver is None:
+            print("Driver returned none")
+
         domains_with_rows = get_domains(SPREADSHEET_ID, DOMAIN_RANGE)
 
         for domain, row_number in domains_with_rows:
