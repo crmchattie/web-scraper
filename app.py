@@ -1,10 +1,10 @@
 from flask import Flask, jsonify
 from bs4 import BeautifulSoup
-from src.webdriver_setup import setup_headless_selenium_driver
+from src.webdriver_setup import setup_headless_selenium_driver, setup_head_selenium_driver
 from src.domain_retrieval import get_domains
 from src.scrapings_grab import get_page_source, parse_for_site_name, parse_for_title, parse_for_meta_description, parse_for_headings, parse_for_navigation, parse_for_main_content, parse_for_links
 from src.translate_text import translate_text
-from src.analyze_text import analyze_website_content, categorize_website_sector, categorize_website_subsector, categorize_website_industry, categorize_website_subindustry
+from src.analyze_text import analyze_website_content, categorize_website_sector, categorize_website_subsector, categorize_website_industry, categorize_website_subindustry, categorize_website_sector_w_new_categories, categorize_website_subsector_w_new_categories, categorize_website_industry_w_new_categories, categorize_website_subindustry_w_new_categories
 from src.scrapings_store import update_google_sheet
 # from src.quickstart import main
 
@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 SPREADSHEET_ID = '16oES5lHLxfjdcaBYeRfIy2RNFArIsH-dT2nSJibZ9PQ'
 SPREADSHEET_NAME = 'Domains'
-DOMAIN_RANGE = f'{SPREADSHEET_NAME}!A2:A1000'
+DOMAIN_RANGE = f'{SPREADSHEET_NAME}!A2:A10'
 
 # Define a Flask route
 @app.route('/run-script')
@@ -69,10 +69,10 @@ def run_script():
                     translated_links = translate_text(str(links), "auto", "en")  # Joining text for simplicity
 
                     summary = analyze_website_content(domain, translated_title, translated_meta_description, translated_headings, translated_navigation, translated_main_content)
-                    sector = categorize_website_sector(summary)
-                    subsector = categorize_website_subsector(summary, sector)
-                    industry = categorize_website_industry(summary, subsector)
-                    subindustry = categorize_website_subindustry(summary, industry)
+                    sector = categorize_website_sector_w_new_categories(summary)
+                    subsector = categorize_website_subsector_w_new_categories(summary, sector)
+                    industry = categorize_website_industry_w_new_categories(summary, subsector)
+                    subindustry = categorize_website_subindustry_w_new_categories(summary, industry)
 
                     # Prepare data to be written to the sheet
                     data_to_write = [

@@ -120,7 +120,7 @@ def categorize_website_sector_w_new_categories(summary):
 
     prompt = (f"Please categorize this website based on its summary: '{summary}'. "
               f"The available categories are: {', '.join(sector_to_sector)}. "
-              f"If none of these fit, suggest a new appropriate sector.")
+              f"If none of these fit, suggest a new appropriate sector. Limit your response to just the sector.")
 
     response = llm.complete(prompt)
     response_str = str(response)
@@ -141,7 +141,7 @@ def categorize_website_subsector_w_new_categories(summary, sector):
     prompt = (f"Based on the summary: '{summary}' and its sector '{sector}', "
               f"please determine the subsector of the website. "
               f"The available subsectors in '{sector}' are: {', '.join(sector_to_subsector[sector])}. "
-              f"If none of these fit, suggest a new appropriate subsector.")
+              f"If none of these fit, suggest a new appropriate subsector. Limit your response to just the subsector.")
 
     response = llm.complete(prompt)
     response_str = str(response)
@@ -162,7 +162,7 @@ def categorize_website_industry_w_new_categories(summary, subsector):
     prompt = (f"Based on the summary: '{summary}' and its subsector '{subsector}', "
               f"please determine the industry of the website. "
               f"The available industries in '{subsector}' are: {', '.join(subsector_to_industry[subsector])}. "
-              f"If none of these fit, suggest a new appropriate industry.")
+              f"If none of these fit, suggest a new appropriate industry. Limit your response to just the industry.")
 
     response = llm.complete(prompt)
     response_str = str(response)
@@ -183,7 +183,7 @@ def categorize_website_subindustry_w_new_categories(summary, industry):
     prompt = (f"Based on the summary: '{summary}' and its industry '{industry}', "
               f"please determine the subindustry of the website. "
               f"The available subindustries in '{industry}' are: {', '.join(industry_to_subindustry[industry])}. "
-              f"If none of these fit, suggest a new appropriate subindustry.")
+              f"If none of these fit, suggest a new appropriate subindustry. Limit your response to just the subindustry.")
 
     response = llm.complete(prompt)
     response_str = str(response)

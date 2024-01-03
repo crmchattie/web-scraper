@@ -2,9 +2,11 @@ from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 
 def setup_headless_selenium_driver():
-    options = Options()
-    options.add_argument("--headless")  # Runs Firefox in headless mode
-    driver = webdriver.Firefox(options=options)
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")
+    options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    options.add_experimental_option('useAutomationExtension', False)
+    driver = webdriver.Chrome(options=options)
     return driver
 
 def setup_head_selenium_driver():
