@@ -2,6 +2,7 @@ from googleapiclient.discovery import build
 from .google_api_utils import authenticate_with_oauth
 
 def update_google_sheet(sheet_id, range_name, values):
+    print("update_google_sheet")
     """Update given range in Google Sheet with provided values."""
     creds = authenticate_with_oauth()
     if not creds or not creds.valid:

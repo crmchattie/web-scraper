@@ -25,173 +25,239 @@ def analyze_website_content(domain, title, meta_description, headings, navigatio
 
 def categorize_website_sector(summary):
     print("categorize_website_sector")
-    # Initialize MistralAI
-    llm = Ollama(model="mistral:latest")
+    try:
+        # Initialize MistralAI
+        llm = Ollama(model="mistral:latest")
 
-    # Create a prompt for MistralAI
-    prompt = f"Please categorize this website based on its summary: '{summary}'. The available categories are: {', '.join(sector_to_sector)}."
+        # Create a prompt for MistralAI
+        prompt = f"Please categorize this website based on its summary: '{summary}'. The available categories are: {', '.join(sector_to_sector)}."
 
-    # Get the response from MistralAI
-    response = llm.complete(prompt)
-    response_str = str(response)
+        # Get the response from MistralAI
+        response = llm.complete(prompt)
+        response_str = str(response)
 
-    # Find the first matching sector in the response
-    for sector in sector_to_sector:
-        if sector.lower() in response_str.lower():
-            return sector
+        # Find the first matching sector in the response
+        for sector in sector_to_sector:
+            if sector.lower() in response_str.lower():
+                return sector
 
-    return f"Sector not found. {response}"
+        return f"Sector not found. {response}"
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
+        # Optionally, you can re-raise the exception after catching it
+        # raise
+
 
 def categorize_website_subsector(summary, sector):
     print("categorize_website_subsector")
-    # Initialize MistralAI
-    llm = Ollama(model="mistral:latest")
+    try:
+        # Initialize MistralAI
+        llm = Ollama(model="mistral:latest")
 
-    # Ensure the sector is valid and has subcategories
-    if sector not in sector_to_subsector or not sector_to_subsector[sector]:
-        return "No subcategories available for this sector"
+        # Ensure the sector is valid and has subcategories
+        if sector not in sector_to_subsector or not sector_to_subsector[sector]:
+            return "No subcategories available for this sector"
 
-    # Create a prompt for MistralAI
-    prompt = (f"Based on the summary: '{summary}' and its sector '{sector}', "
-              f"please determine the subsector of the website. The available subsector in '{sector}' are: {', '.join(sector_to_subsector[sector])}.")
+        # Create a prompt for MistralAI
+        prompt = (f"Based on the summary: '{summary}' and its sector '{sector}', "
+                f"please determine the subsector of the website. The available subsector in '{sector}' are: {', '.join(sector_to_subsector[sector])}.")
 
-    # Get the response from MistralAI
-    response = llm.complete(prompt)
-    response_str = str(response)
+        # Get the response from MistralAI
+        response = llm.complete(prompt)
+        response_str = str(response)
 
-    # Find the first matching subcategory in the response
-    for subcategory in sector_to_subsector[sector]:
-        if subcategory.lower() in response_str.lower():
-            return subcategory
+        # Find the first matching subcategory in the response
+        for subcategory in sector_to_subsector[sector]:
+            if subcategory.lower() in response_str.lower():
+                return subcategory
 
-    return f"Subsector not found. {response}"
+        return f"Subsector not found. {response}"
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
+        # Optionally, you can re-raise the exception after catching it
+        # raise
 
 def categorize_website_industry(summary, subsector):
     print("categorize_website_industry")
-    # Initialize MistralAI
-    llm = Ollama(model="mistral:latest")
+    try:
+        # Initialize MistralAI
+        llm = Ollama(model="mistral:latest")
 
-    # Check if the subsector has associated industries
-    if subsector not in subsector_to_industry or not subsector_to_industry[subsector]:
-        return "No industries available for this subsector"
+        # Check if the subsector has associated industries
+        if subsector not in subsector_to_industry or not subsector_to_industry[subsector]:
+            return "No industries available for this subsector"
 
-    # Create a prompt for MistralAI
-    prompt = (f"Based on the summary: '{summary}' and its subsector '{subsector}', "
-              f"please determine the industry of the website. The available industries in '{subsector}' are: {', '.join(subsector_to_industry[subsector])}.")
+        # Create a prompt for MistralAI
+        prompt = (f"Based on the summary: '{summary}' and its subsector '{subsector}', "
+                f"please determine the industry of the website. The available industries in '{subsector}' are: {', '.join(subsector_to_industry[subsector])}.")
 
-    # Get the response from MistralAI
-    response = llm.complete(prompt)
-    response_str = str(response)
+        # Get the response from MistralAI
+        response = llm.complete(prompt)
+        response_str = str(response)
 
-    # Find the first matching industry in the response
-    for industry in subsector_to_industry[subsector]:
-        if industry.lower() in response_str.lower():
-            return industry
+        # Find the first matching industry in the response
+        for industry in subsector_to_industry[subsector]:
+            if industry.lower() in response_str.lower():
+                return industry
 
-    return f"Industry not found. {response}"
+        return f"Industry not found. {response}"
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
+        # Optionally, you can re-raise the exception after catching it
+        # raise
 
 def categorize_website_subindustry(summary, industry):
     print("categorize_website_subindustry")
-    # Initialize MistralAI
-    llm = Ollama(model="mistral:latest")
+    try:
+        # Initialize MistralAI
+        llm = Ollama(model="mistral:latest")
 
-    # Check if the industry has associated subindustries
-    if industry not in industry_to_subindustry or not industry_to_subindustry[industry]:
-        return "No subindustries available for this industry"
+        # Check if the industry has associated subindustries
+        if industry not in industry_to_subindustry or not industry_to_subindustry[industry]:
+            return "No subindustries available for this industry"
 
-    # Create a prompt for MistralAI
-    prompt = (f"Based on the summary: '{summary}' and its industry '{industry}', "
-              f"please determine the subindustry of the website. The available subindustries in '{industry}' are: {', '.join(industry_to_subindustry[industry])}.")
+        # Create a prompt for MistralAI
+        prompt = (f"Based on the summary: '{summary}' and its industry '{industry}', "
+                f"please determine the subindustry of the website. The available subindustries in '{industry}' are: {', '.join(industry_to_subindustry[industry])}.")
 
-    # Get the response from MistralAI
-    response = llm.complete(prompt)
-    response_str = str(response)
+        # Get the response from MistralAI
+        response = llm.complete(prompt)
+        response_str = str(response)
 
-    # Find the first matching subindustry in the response
-    for subindustry in industry_to_subindustry[industry]:
-        if subindustry.lower() in response_str.lower():
-            return subindustry
+        # Find the first matching subindustry in the response
+        for subindustry in industry_to_subindustry[industry]:
+            if subindustry.lower() in response_str.lower():
+                return subindustry
 
-    return f"Subindustry not found. {response}"
+        return f"Subindustry not found. {response}"
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
+        # Optionally, you can re-raise the exception after catching it
+        # raise
 
 def categorize_website_sector_w_new_categories(summary):
     print("categorize_website_sector")
-    llm = Ollama(model="mistral:latest")
+    try:
+        llm = Ollama(model="mistral:latest")
 
-    prompt = (f"Please categorize this website based on its summary: '{summary}'. "
-              f"The available categories are: {', '.join(sector_to_sector)}. "
-              f"If none of these fit, suggest a new appropriate sector. Limit your response to just the sector.")
+        prompt = (f"Please categorize this website based on its summary: '{summary}'. "
+                f"The available categories are: {', '.join(sector_to_sector)}. "
+                f"If none of these fit, please suggest a new appropriate sector. Limit your response to just the sector.")
 
-    response = llm.complete(prompt)
-    response_str = str(response)
+        response = llm.complete(prompt)
+        response_str = str(response)
 
-    for sector in sector_to_sector:
-        if sector.lower() in response_str.lower():
-            return sector
+        for sector in sector_to_sector:
+            if sector.lower() in response_str.lower():
+                return sector
 
-    return f"New suggested sector: {response}"
+        return response
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
+        # Optionally, you can re-raise the exception after catching it
+        # raise
 
 def categorize_website_subsector_w_new_categories(summary, sector):
     print("categorize_website_subsector")
-    llm = Ollama(model="mistral:latest")
+    try:
+        llm = Ollama(model="mistral:latest")
 
-    if sector not in sector_to_subsector or not sector_to_subsector[sector]:
-        return "No subcategories available for this sector"
+        # Check if there are no subsectors available for the sector
+        if sector not in sector_to_subsector or not sector_to_subsector[sector]:
+            prompt = (f"Based on the summary: '{summary}' and its sector '{sector}', "
+                      f"please suggest an appropriate subsector for this website. "
+                      "Limit your response to just the subsector name.")
+            response = llm.complete(prompt)
+            return str(response)
 
-    prompt = (f"Based on the summary: '{summary}' and its sector '{sector}', "
-              f"please determine the subsector of the website. "
-              f"The available subsectors in '{sector}' are: {', '.join(sector_to_subsector[sector])}. "
-              f"If none of these fit, suggest a new appropriate subsector. Limit your response to just the subsector.")
+        # When subsectors are available
+        prompt = (f"Based on the summary: '{summary}' and its sector '{sector}', "
+                  f"please determine the subsector of the website. "
+                  f"The available subsectors in '{sector}' are: {', '.join(sector_to_subsector[sector])}. "
+                  f"If none of these fit, please suggest a new appropriate subsector. Limit your response to just the subsector.")
+        response = llm.complete(prompt)
+        response_str = str(response)
 
-    response = llm.complete(prompt)
-    response_str = str(response)
+        for subcategory in sector_to_subsector[sector]:
+            if subcategory.lower() in response_str.lower():
+                return subcategory
 
-    for subcategory in sector_to_subsector[sector]:
-        if subcategory.lower() in response_str.lower():
-            return subcategory
+        return response
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
+        # Optionally, you can re-raise the exception after catching it
+        # raise
 
-    return f"New suggested subsector: {response}"
 
 def categorize_website_industry_w_new_categories(summary, subsector):
     print("categorize_website_industry")
-    llm = Ollama(model="mistral:latest")
+    try:
+        llm = Ollama(model="mistral:latest")
 
-    if subsector not in subsector_to_industry or not subsector_to_industry[subsector]:
-        return "No industries available for this subsector"
+        # Check if there are no industries available for the subsector
+        if subsector not in subsector_to_industry or not subsector_to_industry[subsector]:
+            prompt = (f"Based on the summary: '{summary}' and its subsector '{subsector}', "
+                      f"please suggest an appropriate industry for this website. "
+                      "Limit your response to just the industry name.")
+            response = llm.complete(prompt)
+            return str(response)
 
-    prompt = (f"Based on the summary: '{summary}' and its subsector '{subsector}', "
-              f"please determine the industry of the website. "
-              f"The available industries in '{subsector}' are: {', '.join(subsector_to_industry[subsector])}. "
-              f"If none of these fit, suggest a new appropriate industry. Limit your response to just the industry.")
+        # When industries are available
+        prompt = (f"Based on the summary: '{summary}' and its subsector '{subsector}', "
+                  f"please determine the industry of the website. "
+                  f"The available industries in '{subsector}' are: {', '.join(subsector_to_industry[subsector])}. "
+                  f"If none of these fit, please suggest a new appropriate industry. Limit your response to just the industry.")
+        response = llm.complete(prompt)
+        response_str = str(response)
 
-    response = llm.complete(prompt)
-    response_str = str(response)
+        for industry in subsector_to_industry[subsector]:
+            if industry.lower() in response_str.lower():
+                return industry
 
-    for industry in subsector_to_industry[subsector]:
-        if industry.lower() in response_str.lower():
-            return industry
-
-    return f"New suggested industry: {response}"
+        return response
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
+        # Optionally, you can re-raise the exception after catching it
+        # raise
 
 def categorize_website_subindustry_w_new_categories(summary, industry):
     print("categorize_website_subindustry")
-    llm = Ollama(model="mistral:latest")
+    try:
+        llm = Ollama(model="mistral:latest")
 
-    if industry not in industry_to_subindustry or not industry_to_subindustry[industry]:
-        return "No subindustries available for this industry"
+        # Check if there are no subindustries available for the industry
+        if industry not in industry_to_subindustry or not industry_to_subindustry[industry]:
+            prompt = (f"Based on the summary: '{summary}' and its industry '{industry}', "
+                      f"please suggest an appropriate subindustry for this website. "
+                      "Limit your response to just the subindustry name.")
+            response = llm.complete(prompt)
+            return str(response)
 
-    prompt = (f"Based on the summary: '{summary}' and its industry '{industry}', "
-              f"please determine the subindustry of the website. "
-              f"The available subindustries in '{industry}' are: {', '.join(industry_to_subindustry[industry])}. "
-              f"If none of these fit, suggest a new appropriate subindustry. Limit your response to just the subindustry.")
+        # When subindustries are available
+        prompt = (f"Based on the summary: '{summary}' and its industry '{industry}', "
+                  f"please determine the subindustry of the website. "
+                  f"The available subindustries in '{industry}' are: {', '.join(industry_to_subindustry[industry])}. "
+                  f"If none of these fit, please suggest a new appropriate subindustry. Limit your response to just the subindustry.")
+        response = llm.complete(prompt)
+        response_str = str(response)
 
-    response = llm.complete(prompt)
-    response_str = str(response)
+        for subindustry in industry_to_subindustry[industry]:
+            if subindustry.lower() in response_str.lower():
+                return subindustry
 
-    for subindustry in industry_to_subindustry[industry]:
-        if subindustry.lower() in response_str.lower():
-            return subindustry
+        return response
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
+        # Optionally, you can re-raise the exception after catching it
+        # raise
 
-    return f"New suggested subindustry: {response}"
 
 

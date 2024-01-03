@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 SPREADSHEET_ID = '16oES5lHLxfjdcaBYeRfIy2RNFArIsH-dT2nSJibZ9PQ'
 SPREADSHEET_NAME = 'Domains'
-DOMAIN_RANGE = f'{SPREADSHEET_NAME}!A2:A10'
+DOMAIN_RANGE = f'{SPREADSHEET_NAME}!A2:A100'
 
 # Define a Flask route
 @app.route('/run-script')
@@ -73,6 +73,12 @@ def run_script():
                     subsector = categorize_website_subsector_w_new_categories(summary, sector)
                     industry = categorize_website_industry_w_new_categories(summary, subsector)
                     subindustry = categorize_website_subindustry_w_new_categories(summary, industry)
+
+                    print("summary", summary)
+                    print("sector", sector)
+                    print("subsector", subsector)
+                    print("industry", industry)
+                    print("subindustry", subindustry)
 
                     # Prepare data to be written to the sheet
                     data_to_write = [
