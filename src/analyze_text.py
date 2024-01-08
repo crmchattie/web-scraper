@@ -1,4 +1,5 @@
 from llama_index.llms import Ollama
+import traceback  # Import the traceback module
 
 sector_to_sector = ['Food & Restaurants', 'Social & Messaging', 'B2B Services', 'Technology', 'Real Estate', 'SaaS', 'AI Tools', 'Online Gaming', 'Retail & Ecommerce', 'Internet Marketplaces', 'Autos', 'Travel & Entertainment', 'Internet Platforms', 'EdTech', 'Macro', 'FinTech', 'Health & Wellness', 'Media', 'Industrials', 'Other', 'Science & Engineering', 'Crypto', 'Telecom', 'Financials']
 sector_to_subsector = {'AI Tools': ['AI Workspace', 'AI Visual & Art', 'AI Writing & Content', 'AI Character & Chat', 'AI HCM', 'AI Natural Language Processing', 'AI Health Care', 'AI Productivity', 'AI Design & Image Generation', 'AI Website Builders', 'AI Data Analytics', 'AI General', 'AI EdTech', 'AI Video Generation', 'AI Customer Support & Experience', 'AI Music Generation', 'AI DevOps & Code Completion', 'AI Legal', 'AI Voice Generation', 'AI Financial'], 'Autos': ['Auto Parts', 'Auto Auctions', 'Auto Repair & Services', 'Manufacturers', 'Auto Finance', 'Dealer Listings', 'DTC', 'Used Car Marketplace'], 'B2B Services': ['Shippers & Trackers', 'IT Services & Consulting', 'Business Intelligence', 'Maintenance & Repair', 'Ad Managers', 'Industrial Distribution', 'Printing & Branding', 'Parts Marketplace', 'Stock Media'], 'Crypto': ['Information', 'Exchanges & Wallets', 'NFT Marketplaces', 'Metaverse & Games', 'Development & Agencies'], 'EdTech': ['Consumer EdTech', 'Online Degrees', 'Classroom EdTech'], 'Financials': ['Exchanges', 'Banking', 'Consumer Finance', 'Investments', 'Financial Data Provider', 'Insurance'], 'FinTech': ['Lending', 'Payments', 'Consumer', 'Retail Investing', 'Merchant Services', 'Insurance'], 'Food & Restaurants': ['Restaurants', 'Specialty Foods', 'Grocery & Meal Kits', 'Food Production', 'Food Brands', 'Food Delivery'], 'Health & Wellness': ['Fitness', 'Online Health'], 'Internet Marketplaces': ['Freelance', 'Vertical Marketplace'], 'Internet Platforms': ['Job Boards', 'Pet Services', 'Dating Sites', 'Consumer Brands', 'Contractor Services', 'Search', 'Personal Finance', 'Sports Gambling', 'Online Casinos', 'Marketing Tools', 'Deals & Promotion'], 'Media': ['Creator Platforms', 'News & Information', 'Streaming', 'Publishers', 'Production', 'Consumer Reviews', 'Sports Media'], 'Online Gaming': ['Online Gaming'], 'Real Estate': ['NonBank Mortgage', 'Storage', 'MLS', 'Real Estate Development', 'Rentals', 'Listings & Showings'], 'Retail & Ecommerce': ['Office Retail', 'Childcare', 'Footwear', 'Online Resale', 'Industrial & Parts', 'Off-Price', 'Travel Retail', 'Electronics Retail', 'Drug Stores', 'Apparel Retail', 'Pet Retail', 'Eyewear', 'Luxury Retail', 'Specialty Retail', 'Dollar Stores', 'Big Box Retail', 'Gifts & Party', 'Home Retail', 'Ecom Marketplace', 'Personal Care', 'Sport & Athleisure', 'Department Stores', 'Sports Equipment', 'Book Stores & Digital Print', 'Beauty & Cosmetics Retail'], 'SaaS': ['Consulting', 'Communication', 'CRM Tools', 'Design & Creative Tools', 'AdTech', 'Commercial Datasets', 'HCM', 'Collaboration', 'IT & DevOps', 'Application Performance Monitoring', 'CyberSecurity', 'Transactional Exchange', 'Data Cloud', 'Digital Distribution', 'Cybersecurity & Network', 'Workstation', 'Cloud Infrastructure', 'Vendor & Expense Management', 'IoT', 'XM', 'SMB SaaS', 'Finance, Legal & Tax', 'Data Integration & Applications', 'IAM', 'Product Hub', 'Mobile Device Management', 'ERP', 'Observability', 'File Sharing', 'Geography & Maps', 'Accounting Software', 'Unified Communications', 'Electronic Design Automation', 'Document Cloud', 'Web Tools', 'Developer Tools', 'Marketing Cloud', 'Domain Hosting'], 'Science & Engineering': ['Chemicals'], 'Social & Messaging': ['Blogs', 'Social Ad Managers', 'Social Media', 'Discussion Forums', 'Messaging'], 'Telecom': ['Cable/Cell Services', 'Telecommunications'], 'Travel & Entertainment': ['Ground Travel', 'Hotels & Accommodation', 'Airlines', 'Water Travel', 'Cruise Lines', 'Entertainment', 'OTA/Metasearch'], 'Macro': ['US Unemployment'], 'Other': ['Tobacco']}
@@ -6,21 +7,27 @@ subsector_to_industry = {'Shippers & Trackers': ['Order & Return Trackers', 'Shi
 industry_to_subindustry = {'Video Streaming': ['Traditional Cable Network', 'Streaming Native'], 'OTA/Meta Verticals': ['OTA/Meta Hotels', 'OTA/Meta Rental Cars']}
 
 def analyze_website_content(domain, title, meta_description, headings, navigation, main_content):
-    print("analyze_website_content")
-    # Combine the scraped data into a coherent summary
-    combined_content = f"Domain: {domain}\nTitle: {title}\nMeta Description: {meta_description}\nHeadings: {headings}\nNavigation: {navigation}\nMain Content: {main_content}"
     try:
+        print("analyze_website_content")
+        # Combine the scraped data into a coherent summary
+        combined_content = f"Domain: {domain}\nTitle: {title}\nMeta Description: {meta_description}\nHeadings: {headings}\nNavigation: {navigation}\nMain Content: {main_content}"
+        print("combined_content:", combined_content)  # Log the combined content
+
         # Initialize MistralAI
         llm = Ollama(model="mistral:latest")
+        print("LLM initialized")  # Log LLM initialization
 
         # Create a prompt for MistralAI
         prompt = f"What does the website with the following content do? {combined_content}"
+        print("Prompt:", prompt)  # Log the generated prompt
 
         # Get the response from MistralAI
         response = llm.complete(prompt)
-        print("response", response)
+        print("Response:", response)  # Log the LLM response
         return response
     except Exception as e:
+        # Log the error details including the traceback
+        traceback.print_exc()  # Print the full traceback to help diagnose the issue
         print(f"An error occurred in analyze_website_content: {e}")
         return None
 
@@ -196,7 +203,6 @@ def categorize_website_subsector_w_new_categories(summary, sector):
                   f"The available subsectors in '{sector}' are: {', '.join(sector_to_subsector[sector])}. "
                   f"If none of these fit, please suggest a new appropriate subsector. Limit your response to just the subsector.")
         response = llm.complete(prompt)
-        print("response", response)
         print("response", response)
         # Convert the response to a string (assuming the response text is in the 'text' attribute)
         response_str = response.text if hasattr(response, 'text') else str(response)

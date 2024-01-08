@@ -1,6 +1,29 @@
 import time
+import asyncio
+from playwright.async_api import async_playwright
+    
+async def get_page_source_playwright(domain):
+    print("get_page_source")
+    """Fetch the page source for a given domain using Playwright."""
+    formatted_domain = 'https://' + domain if not domain.startswith('http://') and not domain.startswith('https://') else domain
+    try:
+        async with async_playwright() as p:
+            # Choose your browser: Firefox, WebKit, etc.
+            browser = await p.chromium.launch()
+            page = await browser.new_page()
 
-def get_page_source(domain, driver):
+            await page.goto(formatted_domain)
+            await asyncio.sleep(10)  # Wait for the page to load
+            page_source = await page.content()
+
+            # print("get_page_source", domain)
+            # print("get_page_source", page_source)
+            await browser.close()
+            return page_source
+    except Exception as e:
+        return f"Error occurred while fetching page source: {e}"
+    
+def get_page_source_selenium(domain, driver):
     print("get_page_source")
     """Fetch the page source for a given domain using Selenium."""
     formatted_domain = 'https://' + domain if not domain.startswith('http://') and not domain.startswith('https://') else domain
@@ -10,6 +33,14 @@ def get_page_source(domain, driver):
         return driver.page_source
     except Exception as e:
         return f"Error occurred while fetching page source: {e}"
+    
+def parse_for_body(soup):
+    print("parse_for_body")
+    """Parse the page source (soup) to extract the body content."""
+    body = soup.find('body')
+    if body:
+        return str(body)  # Convert the body tag to string
+    return 'No body content found'
     
 def parse_for_site_name(soup):
     print("parse_for_site_name")
@@ -104,12 +135,6 @@ def parse_for_social_media_links(soup):
         if any(social in link['href'] for social in patterns):
             social_media_links.append(link['href'])
     return social_media_links if social_media_links else 'No social media links found'
-
-
-
-
-
-
 
 
 
