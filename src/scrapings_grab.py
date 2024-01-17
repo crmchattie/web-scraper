@@ -1,27 +1,68 @@
 import time
 import asyncio
 from playwright.async_api import async_playwright
-    
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import asyncio
+from playwright.async_api import async_playwright
+import random
+
+async def custom_logger(name: str, severity: str, message: str, args: str):
+    if name == 'browser':
+        print(f"{name} {message}")
+
 async def get_page_source_playwright(domain):
     print("get_page_source")
-    """Fetch the page source for a given domain using Playwright."""
-    formatted_domain = 'https://' + domain if not domain.startswith('http://') and not domain.startswith('https://') else domain
+    https_domain = 'https://' + domain if not domain.startswith('http://') and not domain.startswith('https://') else domain
+    http_domain = 'http://' + domain if not domain.startswith('http://') and not domain.startswith('https://') else domain
+    
+    # Define a list of user agent strings
+    user_agent_strings = [
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36',
+    ]
+
     try:
         async with async_playwright() as p:
-            # Choose your browser: Firefox, WebKit, etc.
+            # Launch the browser in non-headless mode for debugging
             browser = await p.chromium.launch()
-            page = await browser.new_page()
 
-            await page.goto(formatted_domain)
-            await asyncio.sleep(10)  # Wait for the page to load
+            # Create a new context with a random user agent
+            context = await browser.new_context(
+                user_agent=random.choice(user_agent_strings)
+            )
+
+            # Add JavaScript to be executed before any other script on each page
+            await context.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+
+            page = await context.new_page()
+
+            # Listen to various events
+            # page.on('request', lambda request: print(f'Request made: {request.url}'))
+            # page.on('response', lambda response: print(f'Response received: {response.url} - {response.status}'))
+            # page.on('console', lambda msg: print(f'Console message: {msg.text}'))
+            # page.on('load', lambda: print('Page loaded'))
+            # page.on('domcontentloaded', lambda: print('DOM content loaded'))
+            # page.on('requestfailed', lambda request: print(f'Request failed: {request.url}'))
+
+            try:
+                # First, try with https
+                await page.goto(https_domain, wait_until="load", timeout=15000)
+            except Exception as e:
+                print(f"Failed to load https version: {e}, trying http version")
+                # If https fails, try with http
+                await page.goto(http_domain, wait_until="load", timeout=15000)
+            
             page_source = await page.content()
-
-            # print("get_page_source", domain)
-            # print("get_page_source", page_source)
             await browser.close()
             return page_source
     except Exception as e:
-        return f"Error occurred while fetching page source: {e}"
+        print(f"Error occurred while fetching page source: {domain} {e}")
+        return None
+
     
 def get_page_source_selenium(domain, driver):
     print("get_page_source")
@@ -29,7 +70,9 @@ def get_page_source_selenium(domain, driver):
     formatted_domain = 'https://' + domain if not domain.startswith('http://') and not domain.startswith('https://') else domain
     try:
         driver.get(formatted_domain)
-        time.sleep(10)  # Wait for the page to load
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.TAG_NAME, "body"))
+        )
         return driver.page_source
     except Exception as e:
         return f"Error occurred while fetching page source: {e}"

@@ -18,4 +18,6 @@ def update_google_sheet(sheet_id, range_name, values):
         return result
     except Exception as e:
         print(f"Error updating Google Sheet: {e}")
+        print("range_name", range_name)
+        print("range_values", values)
         return None

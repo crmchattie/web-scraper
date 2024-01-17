@@ -8,17 +8,58 @@ sector_to_subsector = {'AI Tools': ['AI Workspace', 'AI Visual & Art', 'AI Writi
 subsector_to_industry = {'Shippers & Trackers': ['Order & Return Trackers', 'Shippers'], 'Consumer EdTech': ['Course Marketplaces', 'Online Curriculums', 'Quizzes & Test Prep', 'Study EdTech', 'Writing Assistance', 'Language EdTech'], 'Insurance': ['Health Insurance', 'Home & Rental Insurance', 'Other Insurance', 'Auto Insurance', 'Life Insurance'], 'Payments': ['Integrated Payment', 'BNPL', 'P2P Payment'], 'Retail Investing': ['Full-service Broker', 'Direct Trading Platforms'], 'Grocery & Meal Kits': ['Grocery Delivery', 'Grocery Stores', 'Meal Kits'], 'Restaurants': ['POS', 'Reservations', 'Restaurant Management'], 'Fitness': ['Home Fitness', 'Sub Gyms', 'On-demand Fitness'], 'Online Health': ['Mental Health', 'Dental Health', 'Eye Care', 'Primary & Chronic Health', 'Pet Health', 'DNA Testing', 'Nutrition', 'Pharmaceutical Brands', 'Dermatology', 'Health Network & Listings', 'Prescriptions & Medicine'], 'Freelance': ['Physical freelance', 'Digital freelance'], 'Streaming': ['Video Streaming', 'Audio Streaming'], 'News & Information': ['Financial News'], 'Office Retail': ['Business Cards & Printing', 'Office Furniture'], 'Home Retail': ['Cleaning Products', 'Furniture', 'Home Security', 'Home Improvement', 'Home Automation', 'Home Furnishings', 'Appliances'], 'Luxury Retail': ['Jewelry'], 'HCM': ['ATS'], 'CRM Tools': ['CRM', 'CSM', 'CRM Suite', 'CXM'], 'SMB SaaS': ['Shop Builders', 'SMB Marketing Tools', 'SMB CRM', 'SMB HCM', 'SMB Finance & Legal', 'SMB Web Builders'], 'Web Tools': ['Web Builders', 'Shop Builders', 'Web Hosting'], 'Airlines': ['Airlines North America', 'Airlines Middle East', 'Airlines Asia', 'Airlines Europe', 'Airlines LATAM', 'Airlines Cargo'], 'Entertainment': ['Movie Theatres', 'Event Ticketing', 'Amusement Parks & Fairs', 'Live Events'], 'Ground Travel': ['Train & Mass', 'Rental Cars'], 'Hotels & Accommodation': ['Alt Accommodation', 'Resorts & Destinations', 'B2B Travel', 'Booking Management', 'Hotel Chains', 'Vacation Clubs'], 'OTA/Metasearch': ['OTA/Meta General', 'OTA/Meta Verticals'], 'US Unemployment': ['UE-SW', 'UE-NE', 'UE-MW', 'UE-SE', 'UE-West']}
 industry_to_subindustry = {'Video Streaming': ['Traditional Cable Network', 'Streaming Native'], 'OTA/Meta Verticals': ['OTA/Meta Hotels', 'OTA/Meta Rental Cars']}
 
-def analyze_website_content(domain, title, meta_description, headings, navigation, main_content):
+def truncate_to_token_limit(content, max_length=4096, average_token_length=1):
+    """Truncate content to a maximum token length."""
+    # Estimate the max character length based on average token length
+    max_char_length = max_length * average_token_length
+    return content if len(content) <= max_char_length else content[:max_char_length]
+
+def analyze_website_content_summary(domain, title, meta_description, headings, navigation, main_content, links):
     try:
         print("analyze_website_content", domain)
 
-        combined_content = f"Domain: {domain}\nTitle: {title}\nMeta Description: {meta_description}\nHeadings: {headings}\nNavigation: {navigation}\nMain Content: {main_content}"
+        combined_content = f"Domain: {domain}\nTitle: {title}\nMeta Description: {meta_description}\nHeadings: {headings}\nNavigation: {navigation}\nMain Content: {main_content}\nLinks: {links}"
         print("combined_content:", combined_content)
+        truncated_content = truncate_to_token_limit(combined_content)
+        print("truncated_content:", truncated_content)
 
         llm = Ollama(model="mistral:latest")
         print("LLM initialized")
 
-        prompt = f"What does the website with the following content do? {combined_content}"
+        prompt = f"What does the website with the following content do? {truncated_content}"
+        print("Prompt:", prompt)
+
+        # Adjust timeout and retries
+        timeout = 10  # seconds
+        retries = 3
+        for attempt in range(retries):
+            try:
+                response = llm.complete(prompt, timeout=timeout)
+                print("Response:", response)
+                return str(response)
+            except httpx.ReadTimeout:
+                print(f"Timeout occurred on attempt {attempt + 1}. Retrying...")
+                print("Prompt with timeout:", prompt)
+                time.sleep(2)
+        print("Unable to process given timeouts:", prompt)
+    except Exception as e:
+        traceback.print_exc()
+        print(f"An error occurred in analyze_website_content: {e}", domain)
+        return None
+    
+def analyze_website_content_product(domain, title, meta_description, headings, navigation, main_content, links):
+    try:
+        print("analyze_website_content", domain)
+
+        combined_content = f"Domain: {domain}\nTitle: {title}\nMeta Description: {meta_description}\nHeadings: {headings}\nNavigation: {navigation}\nMain Content: {main_content}\nLinks: {links}"
+        print("combined_content:", combined_content)
+        truncated_content = truncate_to_token_limit(combined_content)
+        print("truncated_content:", truncated_content)
+
+        llm = Ollama(model="mistral:latest")
+        print("LLM initialized")
+
+        prompt = f"What is the primary service or product offered by this website given the following content? {truncated_content}"
         print("Prompt:", prompt)
 
         # Adjust timeout and retries
@@ -51,7 +92,7 @@ def categorize_website_sector(summary):
 
         # Get the response from MistralAI
         response = llm.complete(prompt)
-        print("response", response)
+        print("response & domain", response)
         # Convert the response to a string (assuming the response text is in the 'text' attribute)
         response_str = response.text if hasattr(response, 'text') else str(response)
         print("response_str", response_str)
@@ -193,7 +234,6 @@ def categorize_website_sector_w_new_categories(summary):
         print("response", response)
         # Convert the response to a string (assuming the response text is in the 'text' attribute)
         response_str = response.text if hasattr(response, 'text') else str(response)
-        print("response_str", response_str)
 
         for sector in sector_to_sector:
             if sector.lower() in response_str.lower():
