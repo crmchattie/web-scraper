@@ -3,10 +3,10 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from queue import Queue
 from bs4 import BeautifulSoup
 from src.webdriver_setup import setup_headless_playwright_driver, setup_head_playwright_driver, setup_headless_selenium_driver, setup_head_selenium_driver
-from src.domain_retrieval import get_domains
+from src.domain_retrieval import get_domains, get_categorizations
 from src.scrapings_grab import get_page_source_selenium, get_page_source_playwright, parse_for_site_name, parse_for_title, parse_for_meta_description, parse_for_headings, parse_for_navigation, parse_for_main_content, parse_for_links, parse_for_body
 from src.translate_text import translate_text
-from src.analyze_text import analyze_website_content_summary, analyze_website_content_product, categorize_website_sector, categorize_website_subsector, categorize_website_industry, categorize_website_subindustry, categorize_website_sector_w_new_categories, categorize_website_subsector_w_new_categories, categorize_website_industry_w_new_categories, categorize_website_subindustry_w_new_categories
+from src.analyze_text import analyze_website_content_summary, analyze_website_content_product, categorize_website_sector, categorize_website_subsector, categorize_website_industry, categorize_website_subindustry, categorize_website_sector_w_new_categories, categorize_website_subsector_w_new_categories, categorize_website_industry_w_new_categories, categorize_website_subindustry_w_new_categories, categorize_website_sector_w_categorizations, categorize_website_subsector_w_categorizations, categorize_website_industry_w_categorizations, categorize_website_subindustry_w_categorizations
 from src.scrapings_store import update_google_sheet
 from src.helpers import is_content_empty, simplify_structure
 import asyncio
@@ -16,9 +16,10 @@ app = Flask(__name__)
 
 SPREADSHEET_ID = '16oES5lHLxfjdcaBYeRfIy2RNFArIsH-dT2nSJibZ9PQ'
 SPREADSHEET_NAME = 'Domains'
-DOMAIN_RANGE = f'{SPREADSHEET_NAME}!A16544:M16733'
+DOMAIN_RANGE = f'{SPREADSHEET_NAME}!A188:M236'
+CATEGORIZATION_RANGE = f'{SPREADSHEET_NAME}!A4082:M16732'
 BATCH_SIZE = 25
-MAX_WORKERS = 4
+MAX_WORKERS = 10
 
 async def web_scraping(domain):
     print(f"Scraping: {domain}")
@@ -45,7 +46,20 @@ def analyze_and_categorize(domain, translated_data):
     subindustry = categorize_website_subindustry_w_new_categories(summary, industry)
     return sector, subsector, industry, subindustry, summary
 
-def update_sheet_from_queue(results_queue):
+def analyze_and_categorize(data):
+    # Assuming 'translated_data' contains necessary elements like title, name, etc.
+    summary = data['summary']
+    sector_summary = data['sector']
+    subsector_summary = data['subsector']
+    industry_summary = data['industry']
+    subindustry_summary = data['subindustry']
+    sector = categorize_website_sector_w_categorizations(summary, sector_summary)
+    subsector = categorize_website_subsector_w_categorizations(summary, subsector_summary)
+    industry = categorize_website_industry_w_categorizations(summary, industry_summary)
+    subindustry = categorize_website_subindustry_w_categorizations(summary, subindustry_summary)
+    return sector, subsector, industry, subindustry, summary
+
+def update_sheet_from_queue(results_queue, starting_column='B'):
     print("update_sheet_from_queue")
     results = []
     while not results_queue.empty() and len(results) < BATCH_SIZE:
@@ -58,7 +72,8 @@ def update_sheet_from_queue(results_queue):
     for row_number, data_to_write in results:
         print("update_sheet_from_queue domain", row_number)
         print("update_sheet_from_queue data_to_write", data_to_write)
-        update_google_sheet(SPREADSHEET_ID, f'{SPREADSHEET_NAME}!B{row_number}', [data_to_write])
+        cell_range = f'{SPREADSHEET_NAME}!{starting_column}{row_number}'
+        update_google_sheet(SPREADSHEET_ID, cell_range, [data_to_write])
 
 def process_domain(domain, row_number, data, results_queue):
     print("process_domain", domain)
@@ -88,8 +103,8 @@ def process_domain(domain, row_number, data, results_queue):
                 data_to_write = ["None", "None", "None", "None", "None", *simplified_data.values()]
             else:
                 # Proceed with translation and further processing
-                # translated_data = translate_data(data)
-                translated_data = data
+                translated_data = translate_data(data)
+                # translated_data = data
                 simplified_data = {key: simplify_structure(value) for key, value in translated_data.items()}
                 sector, subsector, industry, subindustry, summary = analyze_and_categorize(domain, simplified_data)
                 data_to_write = [sector, subsector, industry, subindustry, summary, *simplified_data.values()]
@@ -142,6 +157,76 @@ def run_script():
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)})
 
+def analyze_and_categorize(data):
+    # Assuming 'translated_data' contains necessary elements like title, name, etc.
+    summary = data['summary']
+    sector_summary = data['sector']
+    subsector_summary = data['subsector']
+    industry_summary = data['industry']
+    subindustry_summary = data['subindustry']
+    sector = categorize_website_sector_w_categorizations(summary, sector_summary)
+    subsector = categorize_website_subsector_w_categorizations(summary, subsector_summary)
+    industry = categorize_website_industry_w_categorizations(summary, industry_summary)
+    subindustry = categorize_website_subindustry_w_categorizations(summary, subindustry_summary)
+    print("analyze_and_categorize")
+    print("summary:", summary)
+    print("sector:", sector)
+    print("subsector:", subsector)
+    print("industry:", industry)
+    print("subindustry:", subindustry)
+    return sector, subsector, industry, subindustry
+
+def process_categorizations(row_number, data, results_queue):
+    print("process_categorizations", data)
+    try:
+        sector, subsector, industry, subindustry = analyze_and_categorize(data)
+        data_to_write = [sector, subsector, industry, subindustry]
+        results_queue.put((row_number, data_to_write))
+    except Exception as e:
+        print(f"An error occurred while processing {data}: {e}")
+
+@app.route('/run-categorizations')
+def update_categories():
+    try:
+        categorizations_with_rows = get_categorizations(SPREADSHEET_ID, CATEGORIZATION_RANGE)
+        results_queue = Queue()
+
+        with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+            # Create a list of futures
+            futures = []
+            # Dictionary to map futures to domain and row number
+            future_to_domain = {}
+
+            for row_number, data in categorizations_with_rows:
+                print(f"Scheduling categorization processing for: {row_number}")
+                future = executor.submit(process_categorizations, row_number, data, results_queue)
+                futures.append(future)
+                # Map the future to its domain and row number
+                future_to_domain[future] = (row_number)
+
+            for future in as_completed(futures):
+                row_number = future_to_domain[future]
+                try:
+                    # Wait for the future to complete and get its result
+                    future.result()
+                    print(f"Successfully categorized data at row {row_number}")
+
+                    print(f"results_queue.qsize() {results_queue.qsize()}")
+                    # Check if the results queue has reached the batch size
+                    if results_queue.qsize() >= BATCH_SIZE:
+                        update_sheet_from_queue(results_queue, "N")
+
+                except Exception as e:
+                    # Log any exceptions encountered
+                    print(f"Error processing data at row {row_number}: {e}")
+
+        # Update the sheet with any remaining results
+        update_sheet_from_queue(results_queue, "N")
+
+        return jsonify({'status': 'success', 'message': 'Script executed successfully.'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)})
+
 if __name__ == '__main__':
     with app.app_context():
-        run_script()
+        update_categories()

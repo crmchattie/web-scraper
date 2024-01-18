@@ -102,7 +102,7 @@ def categorize_website_sector(summary):
             if sector.lower() in response_str.lower():
                 return sector
 
-        return f"Sector not found. {str(response)}"
+        return f"Sector not found. {response_str}"
     except Exception as e:
         traceback.print_exc()  # Print the full traceback to help diagnose the issue
         print(f"An error occurred: {e}", summary)
@@ -139,7 +139,7 @@ def categorize_website_subsector(summary, sector):
             if subcategory.lower() in response_str.lower():
                 return subcategory
 
-        return f"Subsector not found. {str(response)}"
+        return f"Subsector not found. {response_str}"
     except Exception as e:
         traceback.print_exc()  # Print the full traceback to help diagnose the issue
         print(f"An error occurred: {e}", sector)
@@ -175,7 +175,7 @@ def categorize_website_industry(summary, subsector):
             if industry.lower() in response_str.lower():
                 return industry
 
-        return f"Industry not found. {str(response)}"
+        return f"Industry not found. {response_str}"
     except Exception as e:
         traceback.print_exc()  # Print the full traceback to help diagnose the issue
         print(f"An error occurred: {e}", subsector)
@@ -211,7 +211,7 @@ def categorize_website_subindustry(summary, industry):
             if subindustry.lower() in response_str.lower():
                 return subindustry
 
-        return f"Subindustry not found. {str(response)}"
+        return f"Subindustry not found. {response_str}"
     except Exception as e:
         traceback.print_exc()  # Print the full traceback to help diagnose the issue
         print(f"An error occurred: {e}", industry)
@@ -239,7 +239,7 @@ def categorize_website_sector_w_new_categories(summary):
             if sector.lower() in response_str.lower():
                 return sector
 
-        return str(response)
+        return response_str
     except Exception as e:
         traceback.print_exc()  # Print the full traceback to help diagnose the issue
         print(f"An error occurred: {e}", summary)
@@ -280,7 +280,7 @@ def categorize_website_subsector_w_new_categories(summary, sector):
             if subcategory.lower() in response_str.lower():
                 return subcategory
 
-        return str(response)
+        return response_str
     except Exception as e:
         traceback.print_exc()  # Print the full traceback to help diagnose the issue
         print(f"An error occurred: {e}", sector)
@@ -322,7 +322,7 @@ def categorize_website_industry_w_new_categories(summary, subsector):
             if industry.lower() in response_str.lower():
                 return industry
 
-        return str(response)
+        return response_str
     except Exception as e:
         traceback.print_exc()  # Print the full traceback to help diagnose the issue
         print(f"An error occurred: {e}", subsector)
@@ -363,10 +363,114 @@ def categorize_website_subindustry_w_new_categories(summary, industry):
             if subindustry.lower() in response_str.lower():
                 return subindustry
 
-        return str(response)
+        return response_str
     except Exception as e:
         traceback.print_exc()  # Print the full traceback to help diagnose the issue
         print(f"An error occurred: {e}", industry)
+        return None
+        # Optionally, you can re-raise the exception after catching it
+        # raise
+    
+def categorize_website_sector_w_categorizations(summary, sector):
+    print("categorize_website_sector_w_categorizations", sector)
+    try:
+        # Initialize MistralAI
+        llm = Ollama(model="mistral:latest")
+        print("LLM initialized")  # Log LLM initialization
+
+        # Create a prompt for MistralAI
+        prompt = (f"Identify the specific sector for the following: Sector Summary: '{sector}', Website Summary: '{summary}'. Respond with only the sector name.")
+        print("Prompt:", prompt)  # Log the generated prompt
+
+        # Get the response from MistralAI
+        response = llm.complete(prompt)
+        print("response & domain", response)
+        # Convert the response to a string (assuming the response text is in the 'text' attribute)
+        response_str = response.text if hasattr(response, 'text') else str(response)
+        print("response_str", response_str)
+
+        return response_str
+    except Exception as e:
+        traceback.print_exc()  # Print the full traceback to help diagnose the issue
+        print(f"An error occurred: {e}", summary)
+        return None
+        # Optionally, you can re-raise the exception after catching it
+        # raise
+
+
+def categorize_website_subsector_w_categorizations(summary, subsector):
+    print("categorize_website_subsector", summary)
+    try:
+        # Initialize MistralAI
+        llm = Ollama(model="mistral:latest")
+        print("LLM initialized")  # Log LLM initialization
+
+        # Create a prompt for MistralAI
+        prompt = (f"Identify the specific subsector for the following: Subsector Summary: '{subsector}', Website Summary: '{summary}'. Respond with only the subsector name.")
+        print("Prompt:", prompt)  # Log the generated prompt
+
+        # Get the response from MistralAI
+        response = llm.complete(prompt)
+        print("response & domain", response)
+        # Convert the response to a string (assuming the response text is in the 'text' attribute)
+        response_str = response.text if hasattr(response, 'text') else str(response)
+        print("response_str", response_str)
+
+        return response_str
+    except Exception as e:
+        traceback.print_exc()  # Print the full traceback to help diagnose the issue
+        print(f"An error occurred: {e}", summary)
+        return None
+        # Optionally, you can re-raise the exception after catching it
+        # raise
+
+def categorize_website_industry_w_categorizations(summary, industry):
+    print("categorize_website_industry", summary)
+    try:
+        # Initialize MistralAI
+        llm = Ollama(model="mistral:latest")
+        print("LLM initialized")  # Log LLM initialization
+
+        # Create a prompt for MistralAI
+        prompt = (f"Identify the specific industry for the following: Industry Summary: '{industry}', Website Summary: '{summary}'. Respond with only the industry name.")
+        print("Prompt:", prompt)  # Log the generated prompt
+
+        # Get the response from MistralAI
+        response = llm.complete(prompt)
+        print("response & domain", response)
+        # Convert the response to a string (assuming the response text is in the 'text' attribute)
+        response_str = response.text if hasattr(response, 'text') else str(response)
+        print("response_str", response_str)
+
+        return response_str
+    except Exception as e:
+        traceback.print_exc()  # Print the full traceback to help diagnose the issue
+        print(f"An error occurred: {e}", summary)
+        return None
+        # Optionally, you can re-raise the exception after catching it
+        # raise
+
+def categorize_website_subindustry_w_categorizations(summary, subindustry):
+    print("categorize_website_subindustry", summary)
+    try:
+        # Initialize MistralAI
+        llm = Ollama(model="mistral:latest")
+        print("LLM initialized")  # Log LLM initialization
+
+        # Create a prompt for MistralAI
+        prompt = (f"Identify the specific subindustry for the following: Subindustry Summary: '{subindustry}', Website Summary: '{summary}'. Respond with only the subindustry name.")
+        print("Prompt:", prompt)  # Log the generated prompt
+
+        # Get the response from MistralAI
+        response = llm.complete(prompt)
+        print("response & domain", response)
+        # Convert the response to a string (assuming the response text is in the 'text' attribute)
+        response_str = response.text if hasattr(response, 'text') else str(response)
+        print("response_str", response_str)
+        return response_str
+    except Exception as e:
+        traceback.print_exc()  # Print the full traceback to help diagnose the issue
+        print(f"An error occurred: {e}", summary)
         return None
         # Optionally, you can re-raise the exception after catching it
         # raise

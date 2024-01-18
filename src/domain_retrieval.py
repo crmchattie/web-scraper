@@ -50,7 +50,6 @@ def get_domains(sheet_id, range_name):
     # Process the results
     try:
         # Modify the range_name if necessary to include the additional columns
-        result = sheet.values().get(spreadsheetId=sheet_id, range=range_name).execute()
         values = result.get('values', [])
         print("values: ", values)
 
@@ -62,12 +61,12 @@ def get_domains(sheet_id, range_name):
         domains_with_data = []
 
         for index, row in enumerate(values):
-            print("get_domains", row)
             domain = row[0] if row else None
             print("get_domains", domain)
+            print("get_domains", len(row))
 
             # Check if additional data is present
-            if len(row) > 11:
+            if len(row) > 12:
                 # summary = row[5]
                 data = {
                     "title": row[6],
@@ -88,6 +87,71 @@ def get_domains(sheet_id, range_name):
 
         print("domains_with_data: ", domains_with_data)
         return domains_with_data
+    except Exception as e:
+        print("Error processing API response:", e)
+        return []
+    
+def get_categorizations(sheet_id, range_name):
+    """Retrieve categorizations and their row numbers from a specified range in a Google Sheet."""
+    print("Starting get_categorizations function.")
+
+    # Get credentials
+    creds = authenticate_with_oauth()
+    print("Credentials obtained.")
+
+    if not creds.valid:
+        print("creds are not valid")
+        return []
+
+    # Initialize the Sheets API service
+    try:
+        service = build('sheets', 'v4', credentials=creds)
+        print("Sheets service built successfully.")
+    except Exception as e:
+        print("Error building Sheets service:", e)
+        return []
+
+    # Call the Sheets API
+    try:
+        sheet = service.spreadsheets()
+        result = sheet.values().get(spreadsheetId=sheet_id, range=range_name).execute()
+    except HttpError as error:
+        print(f"An error occurred: {error}")
+        return None
+    except Exception as e:
+        print(f"A general error occurred: {e}")
+        return None
+
+    # Process the results
+    try:
+        # Modify the range_name if necessary to include the additional columns
+        values = result.get('values', [])
+        print("values: ", values)
+
+        if not values:
+            print('No data found.')
+            return []
+
+        starting_row = get_starting_row(range_name)
+        categorizations = []
+
+        for index, row in enumerate(values):
+            print("get_categorizations", len(row))
+
+            # Check if additional data is present
+            if len(row) > 5:
+                data = {
+                    "sector": row[1],
+                    "subsector": row[2],
+                    "industry": row[3],
+                    "subindustry": row[4],  # Convert to correct format if necessary
+                    "summary": row[5]
+                }
+                if data["sector"] != "Uncategorized / Under Development":
+                    categorizations.append((index + starting_row, data))
+
+        print("domains_with_data: ", categorizations)
+        return categorizations
     except Exception as e:
         print("Error processing API response:", e)
         return []
